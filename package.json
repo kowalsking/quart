@@ -1,0 +1,36 @@
+{
+  "name": "quart",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack-dev-server --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kowalsking/quart.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kowalsking/quart/issues"
+  },
+  "homepage": "https://github.com/kowalsking/quart#readme",
+  "devDependencies": {
+    "@types/clean-webpack-plugin": "^0.1.3",
+    "@types/html-webpack-plugin": "^3.2.3",
+    "@types/pixi.js": "^5.0.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "copy-webpack-plugin": "^6.1.1",
+    "file-loader": "^6.1.0",
+    "html-webpack-plugin": "^4.5.0",
+    "ts-loader": "^8.0.4",
+    "typescript": "^4.0.3",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "pixi.js": "^5.3.3"
+  }
+}
