@@ -28,8 +28,6 @@ module.exports = {
   },
   devServer: {
     contentBase: path.join(__dirname, "./dist"),
-    compress: true,
-    hot: true,
     port: 9000,
   },
   plugins: [
@@ -37,6 +35,11 @@ module.exports = {
       title: "Quart",
     }),
     new CleanWebpackPlugin(),
-    // new CopyWebpackPlugin([{ from: "./src/assets", to: "assets" }]),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: "./src/assets", to: "assets" },
+        { from: "./src/assets", to: "assets" },
+      ],
+    }),
   ],
 };
