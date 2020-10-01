@@ -10,6 +10,7 @@ export default class Loader {
     this.loader.add("back", "/assets/img/background.jpg");
     this.loader.add("hero", "/assets/img/hero.png");
     this.loader.add("spritesheet", "../assets/spritesheet.json");
+    this.loader.add("config", "../assets/enemies.json");
     this.loader.load(() => onAssetsLoad());
   }
 
