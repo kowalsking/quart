@@ -3,9 +3,7 @@ import { Loader as PixiLoader, LoaderResource, Texture } from "pixi.js";
 export default class Loader {
   loader: PixiLoader;
 
-  constructor() {}
-
-  loadAssets(onAssetsLoad: () => void) {
+  constructor(onAssetsLoad: () => void) {
     this.loader = new PixiLoader();
     this.loader.add("back", "/assets/img/background.jpg");
     this.loader.add("hero", "/assets/img/hero.png");

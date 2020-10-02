@@ -1,14 +1,17 @@
 import { Texture, AnimatedSprite, DisplayObject } from "pixi.js";
+import type { Position } from "./Game";
 
 export default class Enemy {
   body: AnimatedSprite;
 
-  constructor(private textureArray: Texture[]) {
+  constructor(private pos: Position, private textureArray: Texture[]) {
+    this.pos = pos;
     this.textureArray = textureArray;
-    this.body = new AnimatedSprite(this.textureArray);
+    this.create(this.pos);
   }
 
-  create(pos: { x: number; y: number }): DisplayObject {
+  create(pos: Position): DisplayObject {
+    this.body = new AnimatedSprite(this.textureArray);
     this.body.x = pos.x;
     this.body.y = pos.y;
     this.body.anchor.set(0.5);
@@ -22,6 +25,12 @@ export default class Enemy {
 
   move(): void {
     this.body.x += 3;
+  }
+
+  checkCollision(border: number): void {
+    if (this.body.x >= border) {
+      this.body.x = 0;
+    }
   }
 
   kill(): void {

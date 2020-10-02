@@ -2,7 +2,6 @@ import {
   Application,
   Sprite,
   Texture,
-  AnimatedSprite,
   DisplayObject,
   LoaderResource,
   Text,
@@ -10,12 +9,19 @@ import {
 import Loader from "./Loader";
 import Enemy from "./Enemy";
 
+export type Position = {
+  x: number;
+  y: number;
+};
+
 class Game {
   private app: Application;
   private loader: Loader;
   private enemies: Enemy[];
+  private text: Text;
 
   constructor() {
+    this.enemies = [];
     this.init();
   }
 
@@ -23,7 +29,6 @@ class Game {
     this.instantiateApp();
     this.createView();
     this.createLoader();
-    this.loadAssets();
   }
 
   instantiateApp(): void {
@@ -38,74 +43,7 @@ class Game {
   }
 
   createLoader(): void {
-    this.loader = new Loader();
-  }
-
-  loadAssets(): void {
-    this.loader.loadAssets(this.setup.bind(this));
-  }
-
-  setupBackground(): void {
-    const bgc: Sprite = new Sprite(this.loader.getTexture("back"));
-    bgc.width = this.app.view.width;
-    bgc.height = this.app.view.height;
-    this.append(bgc);
-  }
-
-  setupEnemies(): void {
-    this.enemies = [];
-    const config: [{ x: number; y: number }] = this.loader.getResourse("config")
-      .data.enemies;
-    const textureArray: Texture[] = [];
-
-    const spritesheet: LoaderResource = this.loader.getResourse("spritesheet");
-
-    const alienImages: string[] = Object.keys(spritesheet.data.frames);
-
-    alienImages.forEach((alien) => textureArray.push(Texture.from(alien)));
-
-    config.map((pos: { x: number; y: number }): void => {
-      const bad = new Enemy(textureArray);
-      this.enemies.push(bad);
-      this.append(bad.create(pos));
-    });
-  }
-
-  setupTicker(): void {
-    this.app.ticker.add(() => {
-      this.enemies.forEach((enemy) => {
-        enemy.move();
-        this.checkCollision(enemy);
-      });
-    });
-  }
-
-  checkCollision(enemy: Enemy): void {
-    if (enemy.body.x >= this.app.screen.width) {
-      enemy.body.x = 0;
-    }
-  }
-
-  setupKiller() {
-    this.app.renderer.plugins.interaction.on("pointerdown", (e: MouseEvent) => {
-      console.log(e.target);
-
-      this.enemies.forEach((enemy, idx) => {
-        if (e.target instanceof AnimatedSprite) {
-          this.enemies.splice(idx, 1);
-          enemy.kill();
-        }
-      });
-    });
-  }
-
-  setupText(): void {
-    const text = new Text(`Quantity of enemies: ${this.enemies.length}`, {
-      fill: ["#ffffff"],
-    });
-    text.x = 50;
-    text.y = 50;
-    this.append(text);
+    this.loader = new Loader(this.setup.bind(this));
   }
 
   setup(): void {
@@ -113,7 +51,77 @@ class Game {
     this.setupEnemies();
     this.setupTicker();
     this.setupKiller();
-    this.setupText();
+    this.updateAmountOfEnemies(this.enemies.length);
+  }
+
+  setupBackground(): void {
+    const bgc: Sprite = new Sprite(this.loader.getTexture("back"));
+    this.makeFullScreen(bgc);
+    this.append(bgc);
+  }
+
+  makeFullScreen(bgc: Sprite) {
+    bgc.width = this.app.view.width;
+    bgc.height = this.app.view.height;
+  }
+
+  setupEnemies(): void {
+    const config: LoaderResource = this.loader.getResourse("config");
+    const enemies: Position[] = config.data.enemies;
+    const textureArray: Texture[] = [];
+    const spritesheet: LoaderResource = this.loader.getResourse("spritesheet");
+    const alienImages: string[] = Object.keys(spritesheet.data.frames);
+
+    alienImages.forEach((alien) => textureArray.push(Texture.from(alien)));
+
+    enemies.map((pos: Position): void => {
+      const bad = new Enemy(pos, textureArray);
+      this.enemies.push(bad);
+      this.append(bad.body);
+    });
+  }
+
+  setupTicker(): void {
+    this.app.ticker.add(() => {
+      this.enemies.forEach((enemy) => {
+        enemy.move();
+        enemy.checkCollision(this.app.screen.width);
+      });
+    });
+  }
+
+  setupKiller(): void {
+    this.enemies.forEach((enemy) => {
+      enemy.body.on("pointerdown", () => {
+        enemy.kill();
+        this.removeFromList(enemy);
+        this.updateAmountOfEnemies(this.enemies.length);
+      });
+    });
+  }
+
+  updateAmountOfEnemies(amount: number): void {
+    if (this.text) {
+      this.remove(this.text);
+    }
+    this.text = new Text(`Quantity of enemies: ${amount}`, {
+      fill: ["#ffffff"],
+    });
+    this.text.x = 50;
+    this.text.y = 50;
+    this.append(this.text);
+  }
+
+  removeFromList(enemy: Enemy): void {
+    this.enemies.forEach((en, idx) => {
+      if (en === enemy) {
+        this.enemies.splice(idx, 1);
+      }
+    });
+  }
+
+  remove(child: DisplayObject): void {
+    this.app.stage.removeChild(child);
   }
 
   append(child: DisplayObject): void {
